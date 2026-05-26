@@ -82,8 +82,6 @@ const AddCreator = () => {
         <button type="submit">Add Creator</button>
       </form>
 
-      <br />
-
       <Link to="/">Back</Link>
     </div>
   )
