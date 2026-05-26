@@ -85,13 +85,13 @@ button {
   padding: 10px 16px;
   border: none;
   border-radius: 8px;
-  background-color: #4b32c3;
+  background-color: #e2cf2a;
   color: white;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #37258f;
+  background-color: #d49413;
 }
 
 .delete-button {

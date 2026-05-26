@@ -182,7 +182,7 @@ input[type="text"]:focus,
 input[type="url"]:focus,
 textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #e4ab0e;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -210,11 +210,11 @@ nav {
 nav a {
   margin-right: 20px;
   font-weight: 600;
-  color: #667eea;
+  color: #8a0909;
 }
 
 nav a:hover {
-  color: #764ba2;
+  color: #d42806;
 }
 
 /* Responsive Design */
