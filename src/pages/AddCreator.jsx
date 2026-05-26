@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { client } from '../client'
+import { supabase } from '../client'
 
 function AddCreator() {
   const navigate = useNavigate()
@@ -16,16 +16,15 @@ function AddCreator() {
       alert('Please fill in name, URL, and description.')
       return
     }
-    const { error } = await client.from('creators').insert([form])
+    const { error } = await supabase.from('creators').insert([form])
     if (!error) navigate('/')
-    else alert('Error adding creator.')
+    else alert('Error adding creator. Check console.')
   }
 
   return (
     <div className="page-container">
       <button className="back-btn" onClick={() => navigate('/')}>Back to Home</button>
       <div className="page-title">Add a Creator</div>
-
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Name *</label>

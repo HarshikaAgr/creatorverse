@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { client } from '../client'
+import { supabase } from '../client'
 
 function EditCreator() {
   const { id } = useParams()
@@ -10,11 +10,8 @@ function EditCreator() {
 
   useEffect(() => {
     const fetchCreator = async () => {
-      const { data, error } = await client
-        .from('creators')
-        .select('*')
-        .eq('id', id)
-        .single()
+      const { data, error } = await supabase
+        .from('creators').select('*').eq('id', id).single()
       if (!error) setForm(data)
       setLoading(false)
     }
@@ -27,7 +24,7 @@ function EditCreator() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const { error } = await client
+    const { error } = await supabase
       .from('creators')
       .update({ name: form.name, url: form.url, description: form.description, imageURL: form.imageURL })
       .eq('id', id)
@@ -41,7 +38,6 @@ function EditCreator() {
     <div className="page-container">
       <button className="back-btn" onClick={() => navigate('/')}>Back to Home</button>
       <div className="page-title">Edit Creator</div>
-
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Name *</label>
