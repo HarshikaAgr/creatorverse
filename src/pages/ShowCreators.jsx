@@ -1,48 +1,59 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { supabase } from '../client'
+import { useNavigate } from 'react-router-dom'
+import { client } from '../client'
 import Card from '../components/Card'
 
-const ShowCreators = () => {
+function ShowCreators() {
   const [creators, setCreators] = useState([])
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const fetchCreators = async () => {
-      const { data, error } = await supabase
-        .from('creators')
-        .select()
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.log('Error fetching creators:', error)
-      } else {
-        setCreators(data)
-      }
-    }
-
     fetchCreators()
   }, [])
 
+  const fetchCreators = async () => {
+    setLoading(true)
+    const { data, error } = await client.from('creators').select('*')
+    if (error) {
+      console.error('Error fetching creators:', error)
+    } else {
+      setCreators(data)
+    }
+    setLoading(false)
+  }
+
+  const handleDelete = async (id) => {
+    const { error } = await client.from('creators').delete().eq('id', id)
+    if (!error) {
+      setCreators(prev => prev.filter(c => c.id !== id))
+    }
+  }
+
   return (
     <div>
-      <header className="hero">
-        <h1>Creatorverse</h1>
-        <p>My favorite creators worth following.</p>
-
-        <Link to="/new">
-          <button>Add Creator</button>
-        </Link>
-      </header>
-
-      <div className="creator-list">
-        {creators.length === 0 ? (
-          <p>No creators yet. Add one!</p>
-        ) : (
-          creators.map((creator) => (
-            <Card key={creator.id} creator={creator} />
-          ))
-        )}
+      <div className="app-header">
+        <h1>✦ CREATORVERSE ✦</h1>
+        <p className="subtitle">Your favorite content creators in one place</p>
       </div>
+
+      <button className="add-btn" onClick={() => navigate('/add')}>
+        + Add Creator
+      </button>
+
+      {loading ? (
+        <div className="loading">Loading creators...</div>
+      ) : creators.length === 0 ? (
+        <div className="empty-state">
+          <p>No creators yet. Add your first one!</p>
+        </div>
+      ) : (
+        <div className="creators-grid">
+          {creators.map(creator => (
+            <Card key={creator.id} creator={creator} onDelete={handleDelete} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

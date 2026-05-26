@@ -1,128 +1,66 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { supabase } from '../client'
+import { useParams, useNavigate } from 'react-router-dom'
+import { client } from '../client'
 
-const EditCreator = () => {
+function EditCreator() {
   const { id } = useParams()
   const navigate = useNavigate()
-
-  const [creator, setCreator] = useState({
-    name: '',
-    url: '',
-    description: '',
-    imageURL: ''
-  })
+  const [form, setForm] = useState({ name: '', url: '', description: '', imageURL: '' })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchCreator = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('creators')
-        .select()
+        .select('*')
         .eq('id', id)
         .single()
-
-      if (error) {
-        console.log('Error fetching creator:', error)
-      } else {
-        setCreator(data)
-      }
+      if (!error) setForm(data)
+      setLoading(false)
     }
-
     fetchCreator()
   }, [id])
 
-  const handleChange = (event) => {
-    const { name, value } = event.target
-
-    setCreator((prev) => ({
-      ...prev,
-      [name]: value
-    }))
+  const handleChange = (e) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const updateCreator = async (event) => {
-    event.preventDefault()
-
-    const { error } = await supabase
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const { error } = await client
       .from('creators')
-      .update({
-        name: creator.name,
-        url: creator.url,
-        description: creator.description,
-        imageURL: creator.imageURL
-      })
+      .update({ name: form.name, url: form.url, description: form.description, imageURL: form.imageURL })
       .eq('id', id)
-
-    if (error) {
-      console.log('Error updating creator:', error)
-    } else {
-      navigate(`/creator/${id}`)
-    }
+    if (!error) navigate('/')
+    else alert('Error updating creator.')
   }
 
-  const deleteCreator = async () => {
-    const { error } = await supabase
-      .from('creators')
-      .delete()
-      .eq('id', id)
-
-    if (error) {
-      console.log('Error deleting creator:', error)
-    } else {
-      navigate('/')
-    }
-  }
+  if (loading) return <div className="loading">Loading...</div>
 
   return (
-    <div>
-      <h1>Edit Creator</h1>
+    <div className="page-container">
+      <button className="back-btn" onClick={() => navigate('/')}>Back to Home</button>
+      <div className="page-title">Edit Creator</div>
 
-      <form onSubmit={updateCreator}>
-        <label>Name</label>
-        <input
-          type="text"
-          name="name"
-          value={creator.name}
-          onChange={handleChange}
-          required
-        />
-
-        <label>URL</label>
-        <input
-          type="text"
-          name="url"
-          value={creator.url}
-          onChange={handleChange}
-          required
-        />
-
-        <label>Description</label>
-        <textarea
-          name="description"
-          value={creator.description}
-          onChange={handleChange}
-          required
-        />
-
-        <label>Image URL</label>
-        <input
-          type="text"
-          name="imageURL"
-          value={creator.imageURL || ''}
-          onChange={handleChange}
-        />
-
-        <button type="submit">Update Creator</button>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Name *</label>
+          <input name="name" value={form.name} onChange={handleChange} />
+        </div>
+        <div className="form-group">
+          <label>Channel URL *</label>
+          <input name="url" value={form.url} onChange={handleChange} />
+        </div>
+        <div className="form-group">
+          <label>Description *</label>
+          <textarea name="description" value={form.description} onChange={handleChange} />
+        </div>
+        <div className="form-group">
+          <label>Image URL (optional)</label>
+          <input name="imageURL" value={form.imageURL || ''} onChange={handleChange} />
+        </div>
+        <button className="submit-btn" type="submit">Save Changes</button>
       </form>
-
-      <button onClick={deleteCreator}>
-        Delete Creator
-      </button>
-
-      <br />
-      <br />
-
-      <Link to={`/creator/${id}`}>Cancel</Link>
     </div>
   )
 }

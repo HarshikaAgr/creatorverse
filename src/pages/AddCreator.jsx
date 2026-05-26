@@ -1,88 +1,50 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { supabase } from '../client'
+import { useNavigate } from 'react-router-dom'
+import { client } from '../client'
 
-const AddCreator = () => {
+function AddCreator() {
   const navigate = useNavigate()
+  const [form, setForm] = useState({ name: '', url: '', description: '', imageURL: '' })
 
-  const [creator, setCreator] = useState({
-    name: '',
-    url: '',
-    description: '',
-    imageURL: ''
-  })
-
-  const handleChange = (event) => {
-    const { name, value } = event.target
-
-    setCreator((prev) => ({
-      ...prev,
-      [name]: value
-    }))
+  const handleChange = (e) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const addCreator = async (event) => {
-    event.preventDefault()
-
-    const { error } = await supabase
-      .from('creators')
-      .insert({
-        name: creator.name,
-        url: creator.url,
-        description: creator.description,
-        imageURL: creator.imageURL
-      })
-
-    if (error) {
-      console.log('Error adding creator:', error)
-    } else {
-      navigate('/')
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.name || !form.url || !form.description) {
+      alert('Please fill in name, URL, and description.')
+      return
     }
+    const { error } = await client.from('creators').insert([form])
+    if (!error) navigate('/')
+    else alert('Error adding creator.')
   }
 
   return (
-    <div>
-      <h1>Add Creator</h1>
+    <div className="page-container">
+      <button className="back-btn" onClick={() => navigate('/')}>Back to Home</button>
+      <div className="page-title">Add a Creator</div>
 
-      <form onSubmit={addCreator}>
-        <label>Name</label>
-        <input
-          type="text"
-          name="name"
-          value={creator.name}
-          onChange={handleChange}
-          required
-        />
-
-        <label>URL</label>
-        <input
-          type="text"
-          name="url"
-          value={creator.url}
-          onChange={handleChange}
-          required
-        />
-
-        <label>Description</label>
-        <textarea
-          name="description"
-          value={creator.description}
-          onChange={handleChange}
-          required
-        />
-
-        <label>Image URL</label>
-        <input
-          type="text"
-          name="imageURL"
-          value={creator.imageURL}
-          onChange={handleChange}
-        />
-
-        <button type="submit">Add Creator</button>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Name *</label>
+          <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. MrBeast" />
+        </div>
+        <div className="form-group">
+          <label>Channel URL *</label>
+          <input name="url" value={form.url} onChange={handleChange} placeholder="https://youtube.com/@..." />
+        </div>
+        <div className="form-group">
+          <label>Description *</label>
+          <textarea name="description" value={form.description} onChange={handleChange} placeholder="What kind of content do they make?" />
+        </div>
+        <div className="form-group">
+          <label>Image URL (optional)</label>
+          <input name="imageURL" value={form.imageURL} onChange={handleChange} placeholder="https://..." />
+        </div>
+        <button className="submit-btn" type="submit">Add Creator</button>
       </form>
-
-      <Link to="/">Back</Link>
     </div>
   )
 }

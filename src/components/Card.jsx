@@ -1,33 +1,49 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
-const Card = ({ creator }) => {
+function Card({ creator, onDelete }) {
+  const navigate = useNavigate()
+
+  const handleEdit = (e) => {
+    e.stopPropagation()
+    navigate(`/edit/${creator.id}`)
+  }
+
+  const handleDelete = (e) => {
+    e.stopPropagation()
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${creator.name}"?\n\nThis cannot be undone.`
+    )
+    if (confirmed) {
+      onDelete(creator.id)
+    }
+  }
+
   return (
-    <div className="card">
-      {creator.imageURL && (
-        <img
-          src={creator.imageURL}
-          alt={creator.name}
-          className="creator-image"
-        />
-      )}
+    <div className="card" onClick={() => navigate(`/creator/${creator.id}`)}>
 
-      <h2>{creator.name}</h2>
+      {creator.imageURL
+        ? <img className="card-bg" src={creator.imageURL} alt={creator.name} />
+        : <div className="card-no-image" />
+      }
 
-      <p>{creator.description}</p>
+      <div className="card-overlay" />
 
-      <a href={creator.url} target="_blank" rel="noreferrer">
-        Visit Channel
-      </a>
-
-      <div className="card-buttons">
-        <Link to={`/creator/${creator.id}`}>
-          <button>View Details</button>
-        </Link>
-
-        <Link to={`/edit/${creator.id}`}>
-          <button>Edit</button>
-        </Link>
+      <div className="card-actions">
+        <button className="icon-btn edit-icon" onClick={handleEdit} title="Edit">
+          Edit
+        </button>
+        <button className="icon-btn delete-icon" onClick={handleDelete} title="Delete">
+          Delete
+        </button>
       </div>
+
+      <div className="card-content">
+        <div className="card-name">{creator.name}</div>
+        <div className="card-desc">{creator.description}</div>
+        
+        <a className="card-link" href={creator.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>Visit Channel</a>
+      </div>
+
     </div>
   )
 }
